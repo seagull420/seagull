@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import * as PrettyMs from 'pretty-ms';
 
 @Component({
   selector: 'app-time-pie-chart',
@@ -12,7 +13,7 @@ export class TimePieChartComponent implements OnInit {
   private readonly WIDTH: number = 500;
   private readonly HEIGHT: number = 500;
   private startTime: number;
-  private interval: number = 1000 * 5;
+  private interval: number = 1000 * 60 * 1;
 
   constructor() { }
 
@@ -35,11 +36,8 @@ export class TimePieChartComponent implements OnInit {
     var now = new Date().getTime();
     var ellapsed = now - this.startTime;
     var ellapsedNormed = Math.min(1, ellapsed / this.interval);
-    console.log(ellapsed + ' ' + ellapsedNormed);
-    if (ellapsed > this.interval) {
-      this.running = false;
-      return;  
-    }
+    //console.log(ellapsed + ' ' + ellapsedNormed);
+   
 
 
     // Paint current frame
@@ -47,21 +45,46 @@ export class TimePieChartComponent implements OnInit {
       this.canvasRef.nativeElement.getContext('2d');
   
     // Draw background (which also effectively clears any previous drawing)
-    ctx.fillStyle = 'rgb(221, 0, 49)';
+    ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, 800, 500);
 
 
+    //pie
+    ctx.fillStyle = "#eee"
+    ctx.beginPath();
+    ctx.arc(this.WIDTH / 2, this.HEIGHT / 2, 200, 0, 2 * Math.PI);
+    ctx.fill();
 
-    ctx.fillStyle = 'rgb(0, 255, 0)';
+    ctx.fillStyle = '#68B684';
     var startAngle = 0;
     var endAngle = Math.PI;
     ctx.moveTo(this.WIDTH / 2, this.HEIGHT / 2);
-    //ctx.arc(this.WIDTH / 2, this.HEIGHT / 2, 200, 1.5*Math.PI,  ellapsedNormed * 1.5 * Math.PI);
-    //ctx.arc(this.WIDTH / 2, this.HEIGHT / 2, 200, 1.5*Math.PI,  1.5*Math.PI + ellapsedNormed * 1.5 * Math.PI);
-    ctx.arc(this.WIDTH / 2, this.HEIGHT / 2, 200, 1.5*Math.PI,  1.5*Math.PI + 2 * ellapsedNormed * Math.PI);
+    var from = 1.5*Math.PI;
+    var to = 1.5*Math.PI + 2 * ellapsedNormed * Math.PI;
+    ctx.beginPath();
+    ctx.arc(this.WIDTH / 2, this.HEIGHT / 2, 200, from, to);
     ctx.lineTo(this.WIDTH / 2, this.HEIGHT / 2);
-    ctx.fill()
+    ctx.fill();
+    
+    
+
+    //text
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.moveTo(this.WIDTH / 2, this.HEIGHT / 2);
+    ctx.arc(this.WIDTH / 2, this.HEIGHT / 2, 100, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillStyle = '#68B684';
+    ctx.textAlign = "center";
+    ctx.font = "16px Arial";
+    ctx.fillText(PrettyMs(this.interval - ellapsed, {compact: true}), this.WIDTH / 2, this.HEIGHT / 2 + 6); 
+    
         
+    if (ellapsed > this.interval) {
+      this.running = false;
+      return;  
+    }
+
     // Schedule next
     requestAnimationFrame(() => this.paint());
   }
