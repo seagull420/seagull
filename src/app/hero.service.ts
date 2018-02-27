@@ -15,14 +15,15 @@ export class HeroService {
   constructor(
     private http: HttpClient,
     private messagesService: MessagesService
-  ) { }
+  ) { 
+  }
 
   getHeroes(): Observable<Hero[]> {
     return this.http.get<Hero[]>(this.heroesUrl)
       .pipe(
         tap(_ => this.log(`fetched heroes`)),
         catchError(this.handleError('getHeroes', []))
-      );
+      );  
   }
 
   getHero(id: number): Observable<Hero> {
@@ -31,6 +32,18 @@ export class HeroService {
       .pipe(
         tap(_ => this.log(`fetched hero id=${_.id}`)),
         catchError(this.handleError<Hero>(`getHero id=${id}`))
+      ); 
+  }
+
+  searchHeroes(term: string): Observable<Hero[]> {
+    if (!term.trim()) {
+      return of([]);
+    } 
+
+    return this.http.get<Hero[]>(`api/heroes/?name=${term}`)
+      .pipe(
+        tap(_ => this.log(`found heroes matching "${term}"`)),
+        catchError(this.handleError<Hero[]>('searchHeroes', []))
       );
   }
 
@@ -40,7 +53,7 @@ export class HeroService {
       this.log(`${operation} failed: ${error.message}`);
       return of(result as T);
     }
-  }
+  } 
 
   private log(message: string) {
     this.messagesService.add('Hero Service: ' + message);

@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const path = require('path');
+const _ = require('lodash');
 
 const heroes = [
     { id: 11, name: 'Mr. Nice' },
@@ -18,7 +19,17 @@ const heroes = [
 app.use(express.static(__dirname + '/dist'));
 
 app.get('/api/heroes', function(req, res) {
-    res.json(heroes);
+    if (req.query.name) {
+        var nameFilter = new RegExp(_.escapeRegExp(req.query.name), "gi");
+        res.json(_.filter(heroes, h => h.name.match(nameFilter)));
+    } else {
+        res.json(heroes);
+    }
+});
+
+app.get('/api/heroes/:id', function(req, res) {
+    var id = parseInt(req.params.id, 10);
+    res.json(heroes.find(h => h.id === id));
 });
 
 app.get('/*', function(req, res) {
@@ -26,4 +37,4 @@ app.get('/*', function(req, res) {
 });
 
 
-app.listen(process.env.PORT || 4200);
+app.listen(process.env.PORT || 4300);
